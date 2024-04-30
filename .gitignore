@@ -21,9 +21,7 @@ bin/
 /dist/
 /nbdist/
 /.nb-gradle/
-/src/training/Teste.java
-/src/training/Person.java
-/src/training/Pseudocode.java
+/src/training/
 
 ### VS Code ###
 .vscode/
