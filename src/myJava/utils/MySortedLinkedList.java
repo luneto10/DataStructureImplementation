@@ -1,14 +1,29 @@
 package myJava.utils;
 
-public class MySortedLinkedList<T extends Comparable<T>> {
+import java.util.*;
+
+@SuppressWarnings("unchecked")
+public class MySortedLinkedList<T> implements Iterable<T> {
     private int size;
     private Node<T> head;
     private Node<T> tail;
+    private final Comparator<T> comparator;
 
-    public MySortedLinkedList() {
+    public MySortedLinkedList(Comparator<T> comparator) {
         this.head = null;
         this.tail = null;
         this.size = 0;
+        this.comparator = comparator;
+    }
+
+    public MySortedLinkedList(){
+        this((Comparator<T>) null);
+    }
+
+    public MySortedLinkedList(Collection<? extends T> c) {
+        this();
+        T[] a = (T[]) c.toArray();
+        addFromArray(a);
     }
 
     public int size(){
@@ -26,10 +41,20 @@ public class MySortedLinkedList<T extends Comparable<T>> {
     }
 
     private Node<T> getNode(int index){
-        Node<T> current = this.head;
-        for (int i = 0; i < index; i++) {
-            current = current.getNext();
+        boundCheck(index);
+        Node<T> current;
+        if (index <= size / 2 ){
+            current = this.head;
+            for (int i = 0; i < index; i++) {
+                current = current.getNext();
+            }
+        } else {
+            current = this.tail;
+            for (int i = size - 1; i > index ; i--) {
+                current = current.getPrev();
+            }
         }
+
         return current;
     }
 
@@ -37,15 +62,30 @@ public class MySortedLinkedList<T extends Comparable<T>> {
         if (item == null){
             throw new IllegalArgumentException("Cannot add a null element");
         }
+
+        if (!hasComparable(item) && comparator == null){
+            throw new IllegalArgumentException("Missing a compareTo, or a comparator in the constructor");
+        }
+
         if(isEmpty()){
             this.head = new Node<>(item);
             this.tail = this.head;
             this.size++;
             return;
         }
+
+        if (comparator == null){
+            addWithComparator(item, (a, b) -> ((Comparable<T>) a).compareTo(b));
+        }
+        else {
+            addWithComparator(item, comparator);
+        }
+    }
+
+    private void addWithComparator(T item, Comparator<T> comparator) {
         Node<T> newNode = new Node<>(item);
 
-        if (item.compareTo(this.head.getItem()) <= 0){
+        if (comparator.compare(item, this.head.getItem()) <= 0){
             this.head.setPrev(newNode);
             newNode.setNext(this.head);
             this.head = newNode;
@@ -53,7 +93,7 @@ public class MySortedLinkedList<T extends Comparable<T>> {
             return;
         }
 
-        if (item.compareTo(this.tail.getItem()) >= 0){
+        if (comparator.compare(item, this.tail.getItem()) >= 0){
             this.tail.setNext(newNode);
             newNode.setPrev(this.tail);
             this.tail = newNode;
@@ -63,22 +103,29 @@ public class MySortedLinkedList<T extends Comparable<T>> {
 
         Node<T> current = this.head;
 
-        for (int i = 0; i < size; i++) {
-            if (item.compareTo(current.getItem()) < 0){
-                break;
-            }
+        while (comparator.compare(item, current.getItem()) >= 0) {
             current = current.getNext();
         }
 
-        Node<T> previous = current.getPrev();
+        insertBefore(current, newNode);
+    }
 
+    private void insertBefore(Node<T> current, Node<T> newNode){
+        Node<T> previous = current.getPrev();
         previous.setNext(newNode);
         newNode.setPrev(previous);
-
         newNode.setNext(current);
         current.setPrev(newNode);
-
         this.size++;
+    }
+
+    private boolean hasComparable(T item) {
+        try {
+            item.getClass().getDeclaredMethod("compareTo", item.getClass());
+            return true;
+        } catch (NoSuchMethodException e) {
+            return false;
+        }
     }
 
     public T pop(){
@@ -91,6 +138,10 @@ public class MySortedLinkedList<T extends Comparable<T>> {
         this.tail.setNext(null);
         size--;
         return toDelete.getItem();
+    }
+
+    public T get(int index){
+        return this.getNode(index).item;
     }
 
     public T remove(int index){
@@ -115,6 +166,7 @@ public class MySortedLinkedList<T extends Comparable<T>> {
         size--;
         return toBeDeleted.getItem();
     }
+
 
     public void addFromArray(T [] array){
         for(T element : array){
@@ -145,4 +197,58 @@ public class MySortedLinkedList<T extends Comparable<T>> {
         sb.append("]");
         return sb.toString();
     }
+
+    @Override
+    public Iterator<T> iterator() {
+        return new Iterator<>() {
+            private Node<T> currentNode = head; // Start from the head
+
+            @Override
+            public boolean hasNext() {
+                return currentNode != null; // Check if there's a next node
+            }
+
+            @Override
+            public T next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException(); // Throw exception if no more elements
+                }
+                T item = currentNode.getItem(); // Get the item from the current node
+                currentNode = currentNode.getNext(); // Move to the next node
+                return item;
+            }
+        };
+    }
+
+    private static class Node <T> {
+
+        private Node<T> next = null;
+        private Node<T> prev = null;
+        private T item;
+
+        public Node(T item){
+            this.item = item;
+        }
+
+        public T getItem(){
+            return item;
+        }
+
+        public Node<T> getNext(){
+            return this.next;
+        }
+
+        public Node<T> getPrev(){
+            return this.prev;
+        }
+
+        public void setNext(Node<T> next){
+            this.next = next;
+        }
+
+        public void setPrev(Node<T> prev){
+            this.prev = prev;
+        }
+    }
+
 }

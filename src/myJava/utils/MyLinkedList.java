@@ -1,9 +1,11 @@
 package myJava.utils;
 
+import training.ExNode;
+
 public class MyLinkedList <T>{
     private int size = 0;
-    private Node<T> head = null;
-    private Node<T> tail = null;
+    private ExNode<T> head = null;
+    private ExNode<T> tail = null;
 
     public int getSize(){
         return this.size;
@@ -19,8 +21,8 @@ public class MyLinkedList <T>{
         return this.size == 0;
     }
 
-    private Node<T> getNode(int index){
-        Node<T> current = this.head;
+    private ExNode<T> getNode(int index){
+        ExNode<T> current = this.head;
         for (int i = 0; i < index; i++) {
             current = current.getNext();
         }
@@ -29,13 +31,13 @@ public class MyLinkedList <T>{
 
     public void push(T item){
         if(this.isEmpty()){
-            this.head = new Node<>(item);
+            this.head = new ExNode<>(item);
             this.tail = this.head;
             this.size++;
             return;
         }
-        Node<T> tail = this.tail;
-        Node<T> newNode = new Node<>(item);
+        ExNode<T> tail = this.tail;
+        ExNode<T> newNode = new ExNode<>(item);
 
         tail.setNext(newNode);
         newNode.setPrev(tail);
@@ -45,8 +47,8 @@ public class MyLinkedList <T>{
     }
 
     public void pushToTheFront(T item){
-        Node<T> current = this.head;
-        Node<T> newNode = new Node<>(item);
+        ExNode<T> current = this.head;
+        ExNode<T> newNode = new ExNode<>(item);
         current.setPrev(newNode);
         newNode.setNext(current);
         this.head = newNode;
@@ -63,9 +65,9 @@ public class MyLinkedList <T>{
             this.push(item);
             return;
         }
-        Node<T> newNode = new Node<>(item);
-        Node<T> nodeBefore = this.getNode(index - 1);
-        Node<T> nodeAfter = nodeBefore.getNext();
+        ExNode<T> newNode = new ExNode<>(item);
+        ExNode<T> nodeBefore = this.getNode(index - 1);
+        ExNode<T> nodeAfter = nodeBefore.getNext();
 
         newNode.setNext(nodeAfter);
         nodeAfter.setPrev(newNode);
@@ -78,7 +80,7 @@ public class MyLinkedList <T>{
         if (isEmpty()){
             throw new IndexOutOfBoundsException("Cannot pop an empty list");
         }
-        Node<T> toDelete = getNode(this.size - 1);
+        ExNode<T> toDelete = getNode(this.size - 1);
 
         this.tail = this.tail.getPrev();
         this.tail.setNext(null);
@@ -90,7 +92,7 @@ public class MyLinkedList <T>{
         boundCheck(index);
 
         if(index == 0){
-            Node<T> toDelete = this.head;
+            ExNode<T> toDelete = this.head;
             this.head = this.head.getNext();
             size--;
             return toDelete.getItem();
@@ -99,9 +101,9 @@ public class MyLinkedList <T>{
             return pop();
         }
 
-        Node<T> toBeDeleted = this.getNode(index);
-        Node<T> after = toBeDeleted.getNext();
-        Node<T> before = toBeDeleted.getPrev();
+        ExNode<T> toBeDeleted = this.getNode(index);
+        ExNode<T> after = toBeDeleted.getNext();
+        ExNode<T> before = toBeDeleted.getPrev();
 
         after.setPrev(before);
         before.setNext(after);

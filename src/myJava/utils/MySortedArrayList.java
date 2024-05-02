@@ -1,12 +1,11 @@
 package myJava.utils;
 
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.RandomAccess;
 
 @SuppressWarnings("unchecked")
-public class MySortedArrayList <T> implements RandomAccess, Iterable<T>{
+public class MySortedArrayList <T extends Comparable<T>> implements RandomAccess, Iterable<T>{
     private int size;
 
     //Initial List of elements
@@ -14,12 +13,9 @@ public class MySortedArrayList <T> implements RandomAccess, Iterable<T>{
 
     private final int INITIAL_CAPACITY = 10;
 
-    private final Comparator<T> cmp;
-
-    MySortedArrayList(Comparator<T> cmp){
-        this.arrayElements = (T []) new Object[INITIAL_CAPACITY];
+    public MySortedArrayList(){
+        this.arrayElements = (T[]) new Comparable[INITIAL_CAPACITY];
         this.size = 0;
-        this.cmp = cmp;
     }
 
     private void resize(){
@@ -88,7 +84,7 @@ public class MySortedArrayList <T> implements RandomAccess, Iterable<T>{
 
     public void removeAll(){
         this.size = 0;
-        this.arrayElements = (T []) new Object[INITIAL_CAPACITY];
+        this.arrayElements = (T []) new Comparable[INITIAL_CAPACITY];;
     }
 
     @Override
@@ -130,8 +126,8 @@ public class MySortedArrayList <T> implements RandomAccess, Iterable<T>{
     }
 
     private int binarySearchToAdd(T item){
-        if (cmp.compare(item, this.arrayElements[0]) <= 0) return 0;
-        if (cmp.compare(item, this.arrayElements[this.size - 1]) >= 0) return this.size;
+        if (item.compareTo( this.arrayElements[0]) <= 0) return 0;
+        if (item.compareTo( this.arrayElements[this.size - 1]) >= 0) return this.size;
 
         int left = 0;
         int right = this.size - 1;
@@ -141,13 +137,13 @@ public class MySortedArrayList <T> implements RandomAccess, Iterable<T>{
 
             if (this.arrayElements[middle].equals(item)) return middle;
 
-            if (cmp.compare(item, this.arrayElements[middle]) > 0) {
-                if (middle + 1 <= right && cmp.compare(item, this.arrayElements[middle + 1]) < 0)
+            if (item.compareTo( this.arrayElements[middle]) > 0) {
+                if (middle + 1 <= right && item.compareTo( this.arrayElements[middle + 1]) < 0)
                     return middle + 1;
                 left = middle + 1;
             }
             else {
-                if (middle - 1 >= left && cmp.compare(item, this.arrayElements[middle - 1]) > 0)
+                if (middle - 1 >= left && item.compareTo( this.arrayElements[middle - 1]) > 0)
                     return middle;
                 right = middle - 1;
             }
